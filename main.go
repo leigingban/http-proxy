@@ -21,8 +21,8 @@ type Proxy struct {
 }
 
 func main() {
-	addr := flag.String("addr", "127.0.0.1", "监听地址， 默认 127.0.0.1")
-	port := flag.String("port", "8998", "监听端口， 默认 8998")
+	addr := flag.String("addr", "0.0.0.0", "监听地址， 默认 0.0.0.0")
+	port := flag.String("port", "6152", "监听端口， 默认 6152")
 	auth := flag.String("auth", "", "验证")
 	debug := flag.Bool("debug", false, "开启调试模式")
 	flag.Parse()
@@ -103,7 +103,6 @@ func (p *Proxy) handleProxyAuth(w http.ResponseWriter, r *http.Request) bool {
 	return false
 }
 
-// HTTP
 func (p *Proxy) HTTP(w http.ResponseWriter, r *http.Request) {
 	transport := http.DefaultTransport
 	res, err := transport.RoundTrip(r)
@@ -167,19 +166,19 @@ func (p *Proxy) HTTPs(w http.ResponseWriter, r *http.Request) {
 	}(server, client)
 }
 
-// buffer 池复制
+// Copy buffer 池复制
 func (p *Proxy) Copy(dst io.Writer, src io.Reader) (written int64, err error) {
 	buf := p.bufPool.Get()
 	defer p.bufPool.Put(buf)
 	return io.CopyBuffer(dst, src, buf)
 }
 
-// log.Printf
+// Printf log.Printf
 func (p *Proxy) Printf(format string, v ...interface{}) {
 	log.Printf(format, v...)
 }
 
-// log.Printf 判断 debug 参数
+// Debug log.Printf 判断 debug 参数
 func (p *Proxy) Debug(format string, v ...interface{}) {
 	if !p.debug {
 		return

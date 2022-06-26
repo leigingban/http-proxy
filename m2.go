@@ -11,7 +11,7 @@ import (
 )
 
 func handleTunneling(w http.ResponseWriter, r *http.Request) {
-	dest_conn, err := net.DialTimeout("tcp", r.Host, 10*time.Second)
+	destConn, err := net.DialTimeout("tcp", r.Host, 10*time.Second)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusServiceUnavailable)
 		return
@@ -22,12 +22,12 @@ func handleTunneling(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Hijacking not supported", http.StatusInternalServerError)
 		return
 	}
-	client_conn, _, err := hijacker.Hijack()
+	clientConn, _, err := hijacker.Hijack()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusServiceUnavailable)
 	}
-	go transfer(dest_conn, client_conn)
-	go transfer(client_conn, dest_conn)
+	go transfer(destConn, clientConn)
+	go transfer(clientConn, destConn)
 }
 func transfer(destination io.WriteCloser, source io.ReadCloser) {
 	defer destination.Close()
